@@ -1,0 +1,19 @@
+trigger:
+  branches:
+    include:
+    - master
+
+pr:
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - docs/*
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+  - template: templates/unit-tests-template.yml
+  - template: templates/e2e-kind-template.yml
