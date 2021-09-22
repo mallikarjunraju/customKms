@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: azure-kms-provider
+  name: custom-kms-provider
   namespace: kube-system
   labels:
     tier: control-plane
-    component: azure-kms-provider
+    component: custom-kms-provider
 spec:
   priorityClassName: system-node-critical
   hostNetwork: true
   containers:
-    - name: azure-kms-provider
+    - name: custom-kms-provider
       image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}
       imagePullPolicy: IfNotPresent
       args:

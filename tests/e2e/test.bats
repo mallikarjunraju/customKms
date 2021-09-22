@@ -15,8 +15,8 @@ else
     export ETCD_KEY=/etc/kubernetes/pki/etcd/server.key
 fi
 
-@test "azure keyvault kms plugin is running" {
-    wait_for_process ${WAIT_TIME} ${SLEEP_TIME} "kubectl -n kube-system wait --for=condition=Ready --timeout=60s pod -l component=azure-kms-provider"
+@test "custom keyvault kms plugin is running" {
+    wait_for_process ${WAIT_TIME} ${SLEEP_TIME} "kubectl -n kube-system wait --for=condition=Ready --timeout=60s pod -l component=custom-kms-provider"
 }
 
 @test "creating secret resource" {
@@ -31,14 +31,14 @@ fi
 
 @test "check if secret is encrypted in etcd" {
     if [ ${IS_SOAK_TEST} = true ]; then
-      local node_name=$(kubectl get nodes -l kubernetes.azure.com/role=master -o jsonpath="{.items[0].metadata.name}")
+      local node_name=$(kubectl get nodes -l kubernetes.custom.com/role=master -o jsonpath="{.items[0].metadata.name}")
       run kubectl node-shell ${node_name} -- sh -c "ETCDCTL_API=3 etcdctl --cacert=${ETCD_CA_CERT} --cert=${ETCD_CERT} --key=${ETCD_KEY} get /registry/secrets/default/secret1"
-      assert_match "k8s:enc:kms:v1:azurekmsprovider" "${output}"
+      assert_match "k8s:enc:kms:v1:customkmsprovider" "${output}"
       assert_success
     else
       local pod_name=$(kubectl get pod -n kube-system -l component=etcd -o jsonpath="{.items[0].metadata.name}")
       run kubectl exec ${pod_name} -n kube-system -- etcdctl --cacert=${ETCD_CA_CERT} --cert=${ETCD_CERT} --key=${ETCD_KEY} get /registry/secrets/default/secret1
-      assert_match "k8s:enc:kms:v1:azurekmsprovider" "${output}"
+      assert_match "k8s:enc:kms:v1:customkmsprovider" "${output}"
       assert_success
     fi
 }
@@ -48,7 +48,7 @@ fi
     kubectl run ${curl_pod_name} --image=curlimages/curl:7.75.0 --labels="test=metrics_test" -- tail -f /dev/null
     kubectl wait --for=condition=Ready --timeout=60s pod ${curl_pod_name}
 
-    local pod_ip=$(kubectl get pod -n kube-system -l component=azure-kms-provider -o jsonpath="{.items[0].status.podIP}")
+    local pod_ip=$(kubectl get pod -n kube-system -l component=custom-kms-provider -o jsonpath="{.items[0].status.podIP}")
     run kubectl exec ${curl_pod_name} -- curl http://${pod_ip}:8095/metrics
     assert_match "kms_request_bucket" "${output}"
     assert_success
@@ -59,7 +59,7 @@ fi
     kubectl run ${curl_pod_name} --image=curlimages/curl:7.75.0 --labels="test=healthz_test" -- tail -f /dev/null
     kubectl wait --for=condition=Ready --timeout=60s pod ${curl_pod_name}
 
-    local pod_ip=$(kubectl get pod -n kube-system -l component=azure-kms-provider -o jsonpath="{.items[0].status.podIP}")
+    local pod_ip=$(kubectl get pod -n kube-system -l component=custom-kms-provider -o jsonpath="{.items[0].status.podIP}")
     result=$(kubectl exec ${curl_pod_name} -- curl http://${pod_ip}:8787/healthz)
     [[ "${result//$'\r'}" == "ok" ]]
 

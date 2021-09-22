@@ -1,4 +1,4 @@
-module github.com/Azure/kubernetes-kms/tools
+module custom-kms/tools
 
 go 1.16
 

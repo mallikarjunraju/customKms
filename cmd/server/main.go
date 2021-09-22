@@ -16,15 +16,10 @@ import (
 	"syscall"
 	"time"
 
-	"crypto/aes"
-	"crypto/cipher"
-	"encoding/hex"
-	"fmt"
-
-	"github.com/Azure/kubernetes-kms/pkg/metrics"
-	"github.com/Azure/kubernetes-kms/pkg/plugin"
-	"github.com/Azure/kubernetes-kms/pkg/utils"
-	"github.com/Azure/kubernetes-kms/pkg/version"
+	"custom-kms/pkg/metrics"
+	"custom-kms/pkg/plugin"
+	"custom-kms/pkg/utils"
+	"custom-kms/pkg/version"
 
 	"google.golang.org/grpc"
 	pb "k8s.io/apiserver/pkg/storage/value/encrypt/envelope/v1beta1"
@@ -33,16 +28,10 @@ import (
 )
 
 var (
-	listenAddr    = flag.String("listen-addr", "unix:///opt/azurekms.socket", "gRPC listen address")
-	keyvaultName  = flag.String("keyvault-name", "", "Azure Key Vault name")
-	keyName       = flag.String("key-name", "", "Azure Key Vault KMS key name")
-	keyVersion    = flag.String("key-version", "", "Azure Key Vault KMS key version")
+	listenAddr    = flag.String("listen-addr", "unix:///opt/customkms.socket", "gRPC listen address")
 	logFormatJSON = flag.Bool("log-format-json", false, "set log formatter to json")
 	// TODO remove this flag in future release.
-	_              = flag.String("configFilePath", "/etc/kubernetes/azure.json", "[DEPRECATED] Path for Azure Cloud Provider config file")
-	configFilePath = flag.String("config-file-path", "/etc/kubernetes/azure.json", "Path for Azure Cloud Provider config file")
 	versionInfo    = flag.Bool("version", false, "Prints the version information")
-
 	healthzPort    = flag.Int("healthz-port", 8787, "port for health check")
 	healthzPath    = flag.String("healthz-path", "/healthz", "path for health check")
 	healthzTimeout = flag.Duration("healthz-timeout", 20*time.Second, "RPC timeout for health check")
@@ -71,10 +60,9 @@ func main() {
 	if err != nil {
 		klog.Fatalf("failed to initialize metrics exporter, error: %+v", err)
 	}
-	encrypt()
-	decrypt()
 	klog.InfoS("Starting KeyManagementServiceServer service updated4.", "version", version.BuildVersion, "buildDate", version.BuildDate)
-	kmsServer, err := plugin.New(ctx, *configFilePath, *keyvaultName, *keyName, *keyVersion)
+	kmsServer, err := plugin.New(ctx, "test")
+
 	if err != nil {
 		klog.Fatalf("failed to create server, error: %v", err)
 	}
@@ -137,40 +125,4 @@ func withShutdownSignal(ctx context.Context) context.Context {
 		cancel()
 	}()
 	return nctx
-}
-
-func encrypt() {
-	key := []byte("keygopostmediumkeygopostmediumke")
-	plaintext := []byte("This is the plaintext to be encrypted")
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		panic(err.Error())
-	}
-	nonce := []byte("gopostmedium")
-
-	aesgcm, err := cipher.NewGCM(block)
-	if err != nil {
-		panic(err.Error())
-	}
-	ciphertext := aesgcm.Seal(nil, nonce, plaintext, nil)
-	fmt.Printf("Ciphertext: %x\n", ciphertext)
-}
-
-func decrypt() {
-	key := []byte("keygopostmediumkeygopostmediumke")
-	ciphertext, _ := hex.DecodeString("13ca135cef69048ae33a21f8f4d52360c3e2f640a73ba46d9633e0b092dec4931689cc0fa225cbc66eeb7d1e27472a494a0183d6b5")
-	nonce := []byte("gopostmedium")
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		panic(err.Error())
-	}
-	aesgcm, err := cipher.NewGCM(block)
-	if err != nil {
-		panic(err.Error())
-	}
-	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
-	if err != nil {
-		panic(err.Error())
-	}
-	fmt.Printf("Plaintext: %s\n", string(plaintext))
 }

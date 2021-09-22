@@ -1,4 +1,4 @@
-ORG_PATH=github.com/Azure
+ORG_PATH=custom-kms
 PROJECT_NAME := kubernetes-kms
 REPO_PATH="$(ORG_PATH)/$(PROJECT_NAME)"
 
@@ -69,7 +69,7 @@ authors:
 	$Q rm -f GITAUTHORS
 
 integration-test:
-	$Q sudo GOPATH=$(GOPATH) go test -v -count=1 -failfast github.com/Azure/kubernetes-kms/tests/client
+	$Q sudo GOPATH=$(GOPATH) go test -v -count=1 -failfast custom-kms/tests/client
 
 unit-test:
 	go test -race -v -count=1 -failfast `go list ./... | grep -v client`

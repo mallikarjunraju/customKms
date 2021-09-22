@@ -10,9 +10,8 @@ import (
 	"encoding/base64"
 	"time"
 
-	"github.com/Azure/kubernetes-kms/pkg/config"
-	"github.com/Azure/kubernetes-kms/pkg/metrics"
-	"github.com/Azure/kubernetes-kms/pkg/version"
+	"custom-kms/pkg/metrics"
+	"custom-kms/pkg/version"
 
 	k8spb "k8s.io/apiserver/pkg/storage/value/encrypt/envelope/v1beta1"
 	"k8s.io/klog/v2"
@@ -24,15 +23,25 @@ type KeyManagementServiceServer struct {
 	reporter metrics.StatsReporter
 }
 
-// New creates an instance of the KMS Service Server.
-func New(ctx context.Context, configFilePath, vaultName, keyName, keyVersion string) (*KeyManagementServiceServer, error) {
-	klog.InfoS("server new()")
+/* New creates an instance of the KMS Service Server.
+func New1(ctx context.Context, config string) (*KeyManagementServiceServer1, error) {
+	klog.InfoS("My servers()")
 
-	cfg, err := config.GetAzureConfig(configFilePath)
+	tpmClient, err := newTPMClient(config)
 	if err != nil {
 		return nil, err
 	}
-	kvClient, err := newKeyVaultClient(cfg, vaultName, keyName, keyVersion)
+	return &KeyManagementServiceServer1{
+		tpmClient: tpmClient,
+		reporter:  metrics.NewStatsReporter(),
+	}, nil
+}
+*/
+// New creates an instance of the KMS Service Server.
+func New(ctx context.Context, config string) (*KeyManagementServiceServer, error) {
+	klog.InfoS("server new()")
+
+	kvClient, err := newTPMClient(config)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +81,7 @@ func (s *KeyManagementServiceServer) Encrypt(ctx context.Context, request *k8spb
 	klog.V(2).Infof("encoded re is", base64.RawURLEncoding.EncodeToString(request.Plain))
 
 	cipher, err := s.kvClient.Encrypt(ctx, request.Plain)
-	
+
 	if err != nil {
 		klog.ErrorS(err, "failed to encrypt")
 		return &k8spb.EncryptResponse{}, err

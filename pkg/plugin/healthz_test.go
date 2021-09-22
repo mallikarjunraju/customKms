@@ -17,8 +17,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/kubernetes-kms/pkg/metrics"
-	mockkeyvault "github.com/Azure/kubernetes-kms/pkg/plugin/mock_keyvault"
+	"custom-kms/pkg/metrics"
+	mockkeyvault "custom-kms/pkg/plugin/mock_keyvault"
 
 	"google.golang.org/grpc"
 	pb "k8s.io/apiserver/pkg/storage/value/encrypt/envelope/v1beta1"

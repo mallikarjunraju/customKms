@@ -1,6 +1,6 @@
 steps:
   - script: |
-      kubectl logs -l component=azure-kms-provider -n kube-system --tail -1
+      kubectl logs -l component=custom-kms-provider -n kube-system --tail -1
       kubectl get pods -o wide -A
     displayName: "Get logs"
     

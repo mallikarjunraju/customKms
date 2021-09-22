@@ -14,7 +14,7 @@ var (
 	// BuildVersion is the version of the KMS binary
 	BuildVersion string
 	APIVersion   = "v1beta1"
-	Runtime      = "Microsoft AzureKMS"
+	Runtime      = "ABB Ability CustomKMS"
 )
 
 // PrintVersion prints the current KMS plugin version

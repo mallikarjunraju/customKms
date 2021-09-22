@@ -12,7 +12,7 @@ func TestParseEndpoint(t *testing.T) {
 	}{
 		{
 			desc:        "invalid endpoint",
-			endpoint:    "udp:///provider/azure.sock",
+			endpoint:    "udp:///provider/custom.sock",
 			expectedErr: true,
 		},
 		{
@@ -24,9 +24,9 @@ func TestParseEndpoint(t *testing.T) {
 		},
 		{
 			desc:          "valid unix endpoint",
-			endpoint:      "unix:///provider/azure.sock",
+			endpoint:      "unix:///provider/custom.sock",
 			expectedProto: "unix",
-			expectedAddr:  "/provider/azure.sock",
+			expectedAddr:  "/provider/custom.sock",
 			expectedErr:   false,
 		},
 	}

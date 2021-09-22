@@ -6,7 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Azure/kubernetes-kms/pkg/metrics"
+	"custom-kms/pkg/metrics"
+
 	"google.golang.org/grpc"
 	"k8s.io/klog/v2"
 )

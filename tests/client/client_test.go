@@ -12,7 +12,7 @@ import (
 
 const (
 	netProtocol      = "unix"
-	pathToUnixSocket = "/opt/azurekms.socket"
+	pathToUnixSocket = "/opt/customkms.socket"
 	version          = "v1beta1"
 )
 

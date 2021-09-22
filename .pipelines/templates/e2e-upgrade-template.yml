@@ -41,7 +41,7 @@ jobs:
       
       - template: manifest-template.yml
         parameters:
-          registry: mcr.microsoft.com/oss/azure/kms
+          registry: mcr.microsoft.com/oss/custom/kms
           imageName: keyvault
           imageVersion: $(LATEST_KMS_VERSION)
 
@@ -49,7 +49,7 @@ jobs:
           . scripts/setup-kind-cluster.sh &
           . scripts/connect-registry.sh &
           wait
-        displayName: "Setup kind cluster with azure kms plugin"
+        displayName: "Setup kind cluster with custom kms plugin"
         env:
           REGISTRY_NAME: $(REGISTRY_NAME)
           REGISTRY_PORT: $(REGISTRY_PORT)
@@ -80,8 +80,8 @@ jobs:
           # wait for the kind network to exist
           echo "waiting for upgraded kms pod to be Running"
           for i in $(seq 1 25); do
-            image=$(kubectl get pods -n kube-system azure-kms-provider-kms-control-plane -o jsonpath="{.spec.containers[*].image}")
-            phase=$(kubectl get pods -n kube-system azure-kms-provider-kms-control-plane -o jsonpath="{.status.phase}")
+            image=$(kubectl get pods -n kube-system custom-kms-provider-kms-control-plane -o jsonpath="{.spec.containers[*].image}")
+            phase=$(kubectl get pods -n kube-system custom-kms-provider-kms-control-plane -o jsonpath="{.status.phase}")
             echo "image - $image phase - $phase"
             if [ "${image}" == "${REGISTRY}/${IMAGE_NAME}:e2e-${LOCAL_IMAGE_VERSION}" ] && [ "${phase}" == "Running" ]; then
               break
@@ -89,7 +89,7 @@ jobs:
               sleep 5
             fi
           done
-          # Give additional 5s for plugin to start. Remove this once https://github.com/Azure/kubernetes-kms/issues/113 is fixed.
+          # Give additional 5s for plugin to start. Remove this once https://custom-kms/issues/113 is fixed.
           sleep 5
         displayName: "Wait for kms upgrade"
       

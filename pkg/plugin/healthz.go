@@ -17,7 +17,7 @@ import (
 	pb "k8s.io/apiserver/pkg/storage/value/encrypt/envelope/v1beta1"
 	"k8s.io/klog/v2"
 
-	"github.com/Azure/kubernetes-kms/pkg/version"
+	"custom-kms/pkg/version"
 )
 
 const (
